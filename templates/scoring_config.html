@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Scoring - Grok SDR</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">Configure Lead Scoring</h1>
+        <a href="/" class="text-blue-500 mb-4 inline-block">Back to Dashboard</a>
+        <form id="scoringConfigForm" class="bg-white p-4 rounded shadow">
+            <p class="mb-4">Enter scoring rules as JSON. Leave blank to use default scoring. Example format:</p>
+            <pre class="bg-gray-200 p-2 rounded mb-4">
+{
+  "industry_relevance": {
+    "description": "Score based on industry type",
+    "rules": [
+      {"industry": ["tech", "software"], "score": 40},
+      {"industry": ["retail", "finance"], "score": 20},
+      {"industry": "other", "score": 10},
+      {"industry": "", "score": 0}
+    ]
+  },
+  "company_size": {
+    "description": "Score based on company size (employees)",
+    "rules": [
+      {"min_size": 500, "max_size": null, "score": 40},
+      {"min_size": 100, "max_size": 499, "score": 20},
+      {"min_size": 1, "max_size": 99, "score": 10},
+      {"min_size": 0, "max_size": 0, "score": 0}
+    ]
+  },
+  "completeness": {
+    "description": "Score based on provided fields",
+    "rules": {
+      "all_fields_provided": 20,
+      "missing_field_penalty": -10,
+      "fields": ["company_name", "contact_name", "industry", "company_size"]
+    }
+  }
+}
+            </pre>
+            <div class="mb-4">
+                <label class="block text-sm font-bold mb-2">Scoring Configuration (JSON)</label>
+                <textarea name="scoring_config" class="w-full p-2 border rounded" rows="10" placeholder="Enter JSON scoring config or leave blank for default"></textarea>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Configuration</button>
+            <div id="errorMessage" class="text-red-500 mt-2 hidden"></div>
+        </form>
+    </div>
+    <script>
+        document.getElementById('scoringConfigForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+            
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/scoring_config', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('Scoring configuration saved successfully!');
+                    window.location.href = '/';
+                } else {
+                    errorDiv.textContent = `Error: ${data.reasoning || 'Failed to save configuration'}`;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Network error: Could not connect to server';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
