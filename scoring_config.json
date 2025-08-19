@@ -1,0 +1,28 @@
+{
+    "industry_relevance": {
+      "description": "Score based on industry type",
+      "rules": [
+        {"industry": ["tech", "software"], "score": 40},
+        {"industry": ["retail", "finance", "healthcare"], "score": 20},
+        {"industry": "other", "score": 10},
+        {"industry": "", "score": 0}
+      ]
+    },
+    "company_size": {
+      "description": "Score based on company size (employees)",
+      "rules": [
+        {"min_size": 500, "max_size": null, "score": 40},
+        {"min_size": 100, "max_size": 499, "score": 20},
+        {"min_size": 1, "max_size": 99, "score": 10},
+        {"min_size": 0, "max_size": 0, "score": 0}
+      ]
+    },
+    "completeness": {
+      "description": "Score based on provided fields",
+      "rules": {
+        "all_fields_provided": 20,
+        "missing_field_penalty": -10,
+        "fields": ["company_name", "contact_name", "industry", "company_size"]
+      }
+    }
+  }
